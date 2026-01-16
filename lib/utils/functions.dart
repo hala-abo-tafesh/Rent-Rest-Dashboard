@@ -41,13 +41,24 @@ void showSnackBar(String message, ToastState state) {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: chooseToastColor(state),
       colorText: Colors.white,
-      borderRadius: 8,
-      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      maxWidth: 400,
+      snackStyle: SnackStyle.FLOATING,
       duration: const Duration(seconds: 3),
       icon: _getIcon(state),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.2),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
     );
   });
 }
+
 
 /// Optional: Add icon based on state
 Widget _getIcon(ToastState state) {

@@ -12,30 +12,49 @@ class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(LoginInitial());
 
   final formKey = GlobalKey<FormState>();
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   LoginModel? loginModel;
 
-  void login(){
+  void login() {
     if (!formKey.currentState!.validate()) return;
+
     emit(LoginLoadingState());
+
     DioHelper.postData(
       url: 'login',
       data: {
-        'login' : emailController.text,
-        'password' : passwordController.text
+        'login': emailController.text,
+        'password': passwordController.text,
       },
     ).then((value) {
       loginModel = LoginModel.fromJson(value);
-      CacheHelper.saveData(key: 'token', value: loginModel?.token);
+
+      if (loginModel?.user == null) {
+        showSnackBar('Invalid user data', ToastState.ERROR);
+        emit(LoginFailureState());
+        return;
+      }
+
+      if (loginModel?.user?.role != 'admin') {
+        showSnackBar('Access denied. Admin only.', ToastState.ERROR);
+        emit(LoginFailureState());
+        return;
+      }
+
+      if (loginModel?.token == null || loginModel!.token!.isEmpty) {
+        showSnackBar('Failed to retrieve access token', ToastState.ERROR);
+        emit(LoginFailureState());
+        return;
+      }
+
+      CacheHelper.saveData(key: 'token', value: loginModel!.token);
+      showSnackBar('Login successful', ToastState.SUCCESS);
       navigateAndFinish(SideBarMenu());
-      showSnackBar('Success', ToastState.SUCCESS);
       emit(LoginSuccessState());
     }).catchError((error) {
-      print(error.toString());
-      showSnackBar(error.toString(), ToastState.ERROR);
+      showSnackBar('An error occurred during login', ToastState.ERROR);
       emit(LoginFailureState());
     });
   }
