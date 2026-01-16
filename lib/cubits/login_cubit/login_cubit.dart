@@ -43,6 +43,12 @@ class LoginCubit extends Cubit<LoginState> {
         return;
       }
 
+      if (loginModel?.user?.status != 'active') {
+        showSnackBar('Your account is not active', ToastState.ERROR);
+        emit(LoginFailureState());
+        return;
+      }
+
       if (loginModel?.token == null || loginModel!.token!.isEmpty) {
         showSnackBar('Failed to retrieve access token', ToastState.ERROR);
         emit(LoginFailureState());
@@ -54,7 +60,7 @@ class LoginCubit extends Cubit<LoginState> {
       navigateAndFinish(SideBarMenu());
       emit(LoginSuccessState());
     }).catchError((error) {
-      showSnackBar('Invalid email or passowrd', ToastState.ERROR);
+      showSnackBar('Invalid email or password', ToastState.ERROR);
       emit(LoginFailureState());
     });
   }
