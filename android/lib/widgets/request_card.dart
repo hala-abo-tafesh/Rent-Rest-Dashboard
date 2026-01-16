@@ -73,14 +73,16 @@ class RequestCard extends StatelessWidget {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                '${user.firstName} ${user.lastName}'.trim(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 16.5,
-                                  fontWeight: FontWeight.w900,
-                                  color: textPrimary,
+                              Expanded(
+                                child: Text(
+                                  '${user.firstName} ${user.lastName}'.trim(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 16.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: textPrimary,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 10),

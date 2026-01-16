@@ -1,19 +1,18 @@
-import 'package:flutter/material.dart';
 import 'package:admin_interface/models/users_model.dart';
 import 'package:admin_interface/theme/colors.dart';
-import '../page/user_details_page.dart';
+import 'package:flutter/material.dart';
 import '../widgets/custom_button.dart';
 
-class RequestCard extends StatelessWidget {
+class UserCard extends StatelessWidget {
   final UsersModel user;
-  final VoidCallback? onAccept;
-  final VoidCallback? onReject;
+  final VoidCallback? onShow;
+  final VoidCallback? onDelete;
 
-  const RequestCard({
+  const UserCard({
     super.key,
     required this.user,
-    this.onAccept,
-    this.onReject,
+    this.onShow,
+    this.onDelete,
   });
 
   @override
@@ -29,8 +28,8 @@ class RequestCard extends StatelessWidget {
     final softBorder = isDark ? Colors.white.withOpacity(.10) : Colors.black.withOpacity(.06);
     final shadow = isDark ? Colors.black.withOpacity(.30) : Colors.black.withOpacity(.06);
 
-    const hPad = 16.0;
-    const vPad = 14.0;
+    final status = user.status.trim().toLowerCase();
+    final statusUi = _statusUI(status, isDark);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -53,13 +52,13 @@ class RequestCard extends StatelessWidget {
             Container(
               width: 6,
               decoration: BoxDecoration(
-                color: AppColors.warning.withOpacity(.92),
+                color: statusUi.fg.withOpacity(.92),
                 borderRadius: const BorderRadius.horizontal(left: Radius.circular(18)),
               ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
                     _Avatar(url: user.imageUrl, isDark: isDark),
@@ -73,24 +72,32 @@ class RequestCard extends StatelessWidget {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                '${user.firstName} ${user.lastName}'.trim(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 16.5,
-                                  fontWeight: FontWeight.w900,
-                                  color: textPrimary,
+                              Expanded(
+                                child: Text(
+                                  '${user.firstName} ${user.lastName}'.trim(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 16.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: textPrimary,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 10),
                               _StatusChip(
-                                label: 'Pending',
-                                bg: isDark
-                                    ? AppColors.warning.withOpacity(.18)
-                                    : AppColors.warning.withOpacity(.12),
-                                fg: AppColors.warning,
+                                label: statusUi.label,
+                                bg: statusUi.bg,
+                                fg: statusUi.fg,
                               ),
+                              if (user.isVerified) ...[
+                                const SizedBox(width: 8),
+                                _StatusChip(
+                                  label: 'Verified',
+                                  bg: isDark ? AppColors.info.withOpacity(.18) : AppColors.info.withOpacity(.12),
+                                  fg: AppColors.info,
+                                ),
+                              ],
                             ],
                           ),
                           const SizedBox(height: 10),
@@ -123,6 +130,31 @@ class RequestCard extends StatelessWidget {
                             iconColor: textSecondary,
                             textColor: textSecondary,
                           ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 8,
+                            children: [
+                              if (user.birthDate != null)
+                                _MiniPill(
+                                  icon: Icons.cake_outlined,
+                                  text: _fmtDate(user.birthDate!),
+                                  fill: softFill,
+                                  border: softBorder,
+                                  iconColor: textSecondary,
+                                  textColor: textPrimary,
+                                ),
+                              if (user.createdAt != null)
+                                _MiniPill(
+                                  icon: Icons.calendar_month_outlined,
+                                  text: 'Joined ${_fmtDate(user.createdAt!)}',
+                                  fill: softFill,
+                                  border: softBorder,
+                                  iconColor: textSecondary,
+                                  textColor: textPrimary,
+                                ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -136,28 +168,7 @@ class RequestCard extends StatelessWidget {
                             text: 'Show',
                             height: 38,
                             borderRadius: 12,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => UserDetailsPage(user: user),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          _SuccessButton(
-                            text: 'Accept',
-                            height: 38,
-                            borderRadius: 12,
-                            onPressed: onAccept,
-                          ),
-                          const SizedBox(height: 10),
-                          _DangerOutlineButton(
-                            text: 'Reject',
-                            height: 38,
-                            borderRadius: 12,
-                            onPressed: onReject,
+                            onPressed: onShow,
                           ),
                         ],
                       ),
@@ -172,79 +183,41 @@ class RequestCard extends StatelessWidget {
     );
   }
 
+  static String _fmtDate(DateTime d) {
+    final y = d.year.toString().padLeft(4, '0');
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
+  }
+
   static String _titleCase(String s) {
     final t = s.trim();
     if (t.isEmpty) return t;
     return t[0].toUpperCase() + t.substring(1).toLowerCase();
   }
-}
 
-class _SuccessButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final double height;
-  final double borderRadius;
-
-  const _SuccessButton({
-    required this.text,
-    required this.onPressed,
-    required this.height,
-    required this.borderRadius,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: height,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
-          backgroundColor: AppColors.success,
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-}
-
-class _DangerOutlineButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final double height;
-  final double borderRadius;
-
-  const _DangerOutlineButton({
-    required this.text,
-    required this.onPressed,
-    required this.height,
-    required this.borderRadius,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: height,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
-          side: BorderSide(color: AppColors.error.withOpacity(.60)),
-          foregroundColor: AppColors.error.withOpacity(.95),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
+  static _StatusUIModel _statusUI(String status, bool isDark) {
+    switch (status) {
+      case 'active':
+        return _StatusUIModel(
+          label: 'Active',
+          fg: AppColors.success,
+          bg: isDark ? AppColors.success.withOpacity(.18) : AppColors.success.withOpacity(.12),
+        );
+      case 'inactive':
+        return _StatusUIModel(
+          label: 'Inactive',
+          fg: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          bg: isDark ? Colors.white.withOpacity(.10) : Colors.black.withOpacity(.06),
+        );
+      case 'pending':
+      default:
+        return _StatusUIModel(
+          label: 'Pending',
+          fg: AppColors.warning,
+          bg: isDark ? AppColors.warning.withOpacity(.18) : AppColors.warning.withOpacity(.12),
+        );
+    }
   }
 }
 
@@ -321,7 +294,11 @@ class _StatusChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: fg),
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w900,
+              color: fg,
+            ),
           ),
         ],
       ),
@@ -365,7 +342,11 @@ class _MiniPill extends StatelessWidget {
             child: Text(
               text,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: textColor),
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w800,
+                color: textColor,
+              ),
             ),
           ),
         ],
@@ -398,10 +379,26 @@ class _InfoRow extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 13.5, color: textColor, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 13.5,
+              color: textColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
     );
   }
+}
+
+class _StatusUIModel {
+  final String label;
+  final Color bg;
+  final Color fg;
+
+  _StatusUIModel({
+    required this.label,
+    required this.bg,
+    required this.fg,
+  });
 }

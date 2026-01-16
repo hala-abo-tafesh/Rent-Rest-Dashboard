@@ -16,18 +16,18 @@ class SideBarCubit extends Cubit<SideBarState> {
   ThemeMode get themeMode => isDark ? ThemeMode.dark : ThemeMode.light;
 
   List<Widget> screens = const [
-    UsersPage(),
     RequestsPage(),
+    UsersPage(),
   ];
 
   List<String> title = const [
-    'Users',
     'Requests',
+    'Users',
   ];
 
   List<IconData> icons = const [
-    Icons.person,
     Icons.send,
+    Icons.person,
   ];
 
   int selectedPageIndex = 0;

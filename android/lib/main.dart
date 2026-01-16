@@ -1,5 +1,5 @@
 import 'package:admin_interface/cubits/theme_cubit/theme_cubit.dart';
-import 'package:admin_interface/page/login_page.dart';
+import 'package:admin_interface/page/side_bar_menu.dart';
 import 'package:admin_interface/theme/dark_theme.dart';
 import 'package:admin_interface/theme/light_theme.dart';
 import 'package:admin_interface/utils/cache_helper.dart';
@@ -30,8 +30,7 @@ class MyApp extends StatelessWidget {
             theme: LightTheme.theme,
             darkTheme: DarkTheme.theme,
             themeMode: themeCubit.themeMode,
-            home: LoginPage(),
-            // home: getRoute(),
+            home: const SideBarMenu(),
           );
         },
       ),
