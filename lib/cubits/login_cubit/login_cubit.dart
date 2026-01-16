@@ -54,7 +54,7 @@ class LoginCubit extends Cubit<LoginState> {
       navigateAndFinish(SideBarMenu());
       emit(LoginSuccessState());
     }).catchError((error) {
-      showSnackBar('An error occurred during login', ToastState.ERROR);
+      showSnackBar('Invalid email or passowrd', ToastState.ERROR);
       emit(LoginFailureState());
     });
   }

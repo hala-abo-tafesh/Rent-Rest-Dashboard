@@ -60,7 +60,7 @@ class LoginPage extends StatelessWidget {
                             /// Email Field
                             CustomTextField(
                               controller: cubit.emailController,
-                              label: 'Email',
+                              label: 'Email or phone',
                               icon: Icons.email,
                               keyboardType: TextInputType.emailAddress,
                               validator: (value) {

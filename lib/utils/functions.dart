@@ -60,7 +60,6 @@ void showSnackBar(String message, ToastState state) {
 }
 
 
-/// Optional: Add icon based on state
 Widget _getIcon(ToastState state) {
   switch (state) {
     case ToastState.SUCCESS:
