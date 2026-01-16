@@ -16,7 +16,7 @@ class _RequestsPageState extends State<RequestsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<UsersCubit>().getUsers();
+    context.read<UsersCubit>().getRequests();
   }
 
   @override
@@ -34,9 +34,8 @@ class _RequestsPageState extends State<RequestsPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final pending = cubit.usersModel
-              .where((u) => u.status.trim().toLowerCase() == 'pending')
-              .toList();
+          final pending = cubit.requestsModel;
+
 
           if (pending.isEmpty) {
             return const Center(child: Text('No pending requests'));

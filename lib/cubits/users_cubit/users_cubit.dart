@@ -11,36 +11,40 @@ class UsersCubit extends Cubit<UsersState> {
   UsersCubit() : super(UsersInitial());
 
   List<UsersModel> usersModel = [];
+
   List<UsersModel> requestsModel = [];
+
+  Future<void> getRequests() async {
+    emit(GetUsersLoadingState());
+
+    final data = await DioHelper.getData<List<dynamic>>(
+      url: 'indexUsers',
+      token: CacheHelper.getData(key: 'token'),
+      query: {
+        'statuses[]': ['pending'],
+      },
+    );
+
+    requestsModel = data.map((e) => UsersModel.fromJson(e)).toList();
+    emit(GetUsersSuccessState());
+  }
+
 
   Future<void> getUsers() async {
     emit(GetUsersLoadingState());
 
-    try {
-      final token = CacheHelper.getData(key: 'token') as String?;
+    final data = await DioHelper.getData<List<dynamic>>(
+      url: 'indexUsers',
+      token: CacheHelper.getData(key: 'token'),
+      query: {
+        'statuses[]': ['active', 'inactive'],
+      },
+    );
 
-      if (token == null || token.isEmpty) {
-        emit(GetUsersFailureState());
-        showSnackBar('Missing token', ToastState.ERROR);
-        return;
-      }
-
-      final List<dynamic> data = await DioHelper.getData<List<dynamic>>(
-        url: 'indexUsers',
-        token: token,
-      );
-
-      usersModel = data
-          .map((e) => UsersModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      emit(GetUsersSuccessState());
-    } catch (error) {
-      showSnackBar('Error loading users', ToastState.ERROR);
-      print(error.toString());
-      emit(GetUsersFailureState());
-    }
+    usersModel = data.map((e) => UsersModel.fromJson(e)).toList();
+    emit(GetUsersSuccessState());
   }
+
 
   void acceptUser({required int userID}){
     emit(AcceptLoadingState());

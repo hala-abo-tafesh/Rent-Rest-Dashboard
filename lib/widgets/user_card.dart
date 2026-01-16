@@ -194,7 +194,7 @@ class UserCard extends StatelessWidget {
                                 elevation: 0,
                               ),
                               child: Text(
-                                user.status == 'inactive' ? 'Active' : 'Inactive',
+                                user.status == 'inactive' ? 'Enable' : 'Ban',
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                               ),
                             ),
